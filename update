@@ -1,3 +1,6 @@
+Sure, here is the updated VBA code that appends the extracted column data starting from the second row of the destination sheet:
+
+```vba
 Sub ExtractColumns()
     ' Create a list of column indices
     Dim columnIndices As Variant
@@ -29,9 +32,10 @@ Sub ExtractColumns()
             Dim columnData As Variant
             columnData = dataRange.Columns(columnIndices(i)).Value
             
-            ' Append the column data to the end of a sheet in another Excel file
+            ' Append the column data to the end of a sheet in another Excel file, starting from the second row
             Dim lastRow As Long
             lastRow = xlBook.Sheets(sheetNames(j)).Cells(xlBook.Sheets(sheetNames(j)).Rows.Count, "A").End(xlUp).Row + 1
+            If lastRow < 2 Then lastRow = 2 ' start appending from the second row
             xlBook.Sheets(sheetNames(j)).Cells(lastRow, 1).Resize(UBound(columnData), 1).Value = columnData
         Next j
     Next i
@@ -47,3 +51,8 @@ Sub ExtractColumns()
     
 End Sub
 
+```
+
+This code is similar to the previous one, but with one small change: it checks if `lastRow` is less than 2 and sets it to 2 if it is. This ensures that the extracted column data is appended starting from the second row of the destination sheet.
+
+I hope this helps! Let me know if you have any questions or need further assistance. 😊
