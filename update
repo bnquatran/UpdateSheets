@@ -1,0 +1,49 @@
+Sub ExtractColumns()
+    ' Create a list of column indices
+    Dim columnIndices As Variant
+    columnIndices = Array(1, 3, 5) ' specify the columns to extract here
+    
+    ' Create a list of sheet names
+    Dim sheetNames As Variant
+    sheetNames = Array("Sheet1", "Sheet2", "Sheet3") ' specify the sheet names here
+    
+    ' Specify the directory of the Excel file that contains the sheets
+    Dim filePath As String
+    filePath = "C:\Users\YourName\Documents\ExcelFile.xlsx" ' change this to the desired file path
+    
+    ' Open the Excel file
+    Dim xlApp As Object
+    Set xlApp = CreateObject("Excel.Application")
+    Dim xlBook As Object
+    Set xlBook = xlApp.Workbooks.Open(filePath)
+    
+    ' Loop through the list of indices and sheet names
+    Dim i As Long, j As Long
+    For i = LBound(columnIndices) To UBound(columnIndices)
+        For j = LBound(sheetNames) To UBound(sheetNames)
+            ' Ignore the first row (headers)
+            Dim dataRange As Range
+            Set dataRange = xlBook.Sheets(sheetNames(j)).UsedRange.Offset(1, 0).Resize(xlBook.Sheets(sheetNames(j)).UsedRange.Rows.Count - 1, 1)
+            
+            ' Extract the column data
+            Dim columnData As Variant
+            columnData = dataRange.Columns(columnIndices(i)).Value
+            
+            ' Append the column data to the end of a sheet in another Excel file
+            Dim lastRow As Long
+            lastRow = xlBook.Sheets(sheetNames(j)).Cells(xlBook.Sheets(sheetNames(j)).Rows.Count, "A").End(xlUp).Row + 1
+            xlBook.Sheets(sheetNames(j)).Cells(lastRow, 1).Resize(UBound(columnData), 1).Value = columnData
+        Next j
+    Next i
+    
+    ' Save and close the Excel file
+    xlBook.Save
+    xlBook.Close
+    Set xlBook = Nothing
+    
+    ' Quit Excel application
+    xlApp.Quit
+    Set xlApp = Nothing
+    
+End Sub
+
