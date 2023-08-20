@@ -29,11 +29,11 @@ Sub ExtractColumns()
             Dim columnData As Variant
             columnData = dataRange.Columns(columnIndices(i)).Value
             
-            ' Append the column data to the end of a sheet in another Excel file, starting from the second row
-            Dim lastRow As Long
-            lastRow = xlBook.Sheets(sheetNames(j)).Cells(xlBook.Sheets(sheetNames(j)).Rows.Count, "A").End(xlUp).Row + 1
-            If lastRow < 2 Then lastRow = 2 ' start appending from the second row
-            xlBook.Sheets(sheetNames(j)).Cells(lastRow, 1).Resize(UBound(columnData), 1).Value = columnData
+            ' Concatenate the column data to the end of a sheet in another Excel file, starting from the second row
+            Dim lastColumn As Long
+            lastColumn = xlBook.Sheets(sheetNames(j)).Cells(1, xlBook.Sheets(sheetNames(j)).Columns.Count).End(xlToLeft).Column + 1
+            If lastColumn < 2 Then lastColumn = 2 ' start concatenating from the second column
+            xlBook.Sheets(sheetNames(j)).Cells(2, lastColumn).Resize(UBound(columnData), 1).Value = columnData
         Next j
     Next i
     
