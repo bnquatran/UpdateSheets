@@ -29,16 +29,16 @@ Sub ExtractColumns()
         Dim extractedColumn As Range
         Set extractedColumn = currentSheet.Range(currentSheet.Cells(2, columnIndices(i)), currentSheet.Cells(lastRow, columnIndices(i)))
 
-        ' The extracted column should be concatenated to the end of each sheet; the user should be able to specify the directory of the Excel file that contains the sheet name from the list of sheet names
+        ' The extracted column should be concatenated after the last column of each sheet; the user should be able to specify the directory of the Excel file that contains the sheet name from the list of sheet names
         Dim targetWorkbook As Workbook
         Set targetWorkbook = Workbooks.Open(targetWorkbookPath)
 
         Dim targetSheet As Worksheet
         Set targetSheet = targetWorkbook.Sheets(sheetNames(i))
 
-        Dim targetLastRow As Long
-        targetLastRow = targetSheet.Cells(targetSheet.Rows.Count, 1).End(xlUp).Row
+        Dim targetLastColumn As Long
+        targetLastColumn = targetSheet.Cells(1, targetSheet.Columns.Count).End(xlToLeft).Column
 
-        extractedColumn.Copy Destination:=targetSheet.Range("A" & targetLastRow + 1)
+        extractedColumn.Copy Destination:=targetSheet.Cells(1, targetLastColumn + 1)
     Next i
 End Sub
