@@ -1,0 +1,56 @@
+import openpyxl
+
+# create a variable for the user to fill out the directory of the target excel file that contains the sheet name from the list of sheet names
+target_file = input("Enter the directory of the target excel file: ")
+
+# create a variable for the user to fill out the directory of the source excel file
+source_file = input("Enter the directory of the source excel file: ")
+
+# create a variable for the user to fill out for the name of a header
+header_name = input("Enter the name of a header: ")
+
+# create a list of column indices; the user should be able to specify which specific columns to extract
+column_indices = list(map(int, input("Enter column indices separated by spaces: ").split()))
+
+# create a list of excel sheet names; the user should be able to write in the name of sheet names
+sheet_names = input("Enter sheet names separated by spaces: ").split()
+
+# load workbooks
+target_wb = openpyxl.load_workbook(target_file)
+source_wb = openpyxl.load_workbook(source_file)
+
+# create a loop that goes through the list of indices and sheet names; the lists should be iterated at the same time not separately:
+for sheet_name, column_index in zip(sheet_names, column_indices):
+    # get sheets
+    target_sheet = target_wb[sheet_name]
+    source_sheet = source_wb[sheet_name]
+
+    # ignore the first row of the currently opened excel file; the first row contains headers
+    # extract a column
+    column_data = [cell.value for cell in source_sheet.iter_cols(min_col=column_index, max_col=column_index, min_row=2, values_only=True)]
+
+    # find the last column of the sheet in the target excel file
+    last_column = target_sheet.max_column + 1
+
+    # put the header name in the last column, 1st row of the 1st sheet only.
+    if column_index == column_indices[0]:
+        target_sheet.cell(row=1, column=last_column).value = header_name
+
+    # concatenate extracted column to end of each sheet; ignore first row; place extracted column starting at 2nd row; 1st row has headers
+    for i, value in enumerate(column_data):
+        target_sheet.cell(row=i+2, column=last_column).value = value
+
+# get first sheet
+first_sheet = target_wb[target_wb.sheetnames[0]]
+
+# get cell on 1st row, last column of first sheet
+last_column = first_sheet.max_column
+first_cell = first_sheet.cell(row=1, column=last_column)
+
+# assign formula that references value of that cell to 1st row, last column cell of all other sheets
+for sheet_name in target_wb.sheetnames[1:]:
+    sheet = target_wb[sheet_name]
+    sheet.cell(row=1, column=last_column).value = f"={first_sheet.title}!{first_cell.coordinate}"
+
+# save changes to target workbook
+target_wb.save(target_file)
