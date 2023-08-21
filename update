@@ -1,19 +1,19 @@
 Sub ExtractColumns()
-    ' Move the targetWorkbookPath variable above the headerName variable
+    ' Define the path of the target workbook
     Dim targetWorkbookPath As String
-    targetWorkbookPath = InputBox("Enter the path of the target workbook:")
+    targetWorkbookPath = "C:\Path\To\Target\Workbook.xlsx"
 
-    ' Create a variable for the user to fill out for the name of a header
+    ' Define the name of the header
     Dim headerName As String
-    headerName = InputBox("Enter the name of the header:")
+    headerName = "Header Name"
 
-    ' Create a list of column indices; the user should be able to specify which specific columns to extract
+    ' Define the list of column indices to extract
     Dim columnIndices As Variant
-    columnIndices = Split(InputBox("Enter the column indices to extract, separated by commas:"), ",")
+    columnIndices = Array(1, 2, 3)
 
-    ' Create a list of Excel sheet names; the user should be able to write in the name of sheet names
+    ' Define the list of sheet names
     Dim sheetNames As Variant
-    sheetNames = Split(InputBox("Enter the sheet names, separated by commas:"), ",")
+    sheetNames = Array("Sheet1", "Sheet2", "Sheet3")
 
     ' Create a loop that goes through the list of indices and sheet names:
     Dim i As Long, j As Long
