@@ -1,44 +1,52 @@
 Sub ExtractColumns()
-    ' Define the path of the target workbook
-    Dim targetWorkbookPath As String
-    targetWorkbookPath = "C:\Path\To\Target\Workbook.xlsx"
-
-    ' Define the name of the header
+    ' Create a variable for the user to fill out the directory of the target excel file that contains the sheet name from the list of sheet names
+    Dim targetFile As String
+    targetFile = "C:\Path\To\Target\File.xlsx" ' Edit this line with the directory of your target Excel file
+    
+    ' Create a variable for the user to fill out for the name of a header
     Dim headerName As String
-    headerName = "Header Name"
-
-    ' Define the list of column indices to extract
+    headerName = "Header Name" ' Edit this line with your desired header name
+    
+    ' Create a list of column indices; the user should be able to specify which specific columns to extract
     Dim columnIndices As Variant
-    columnIndices = Array(1, 2, 3)
-
-    ' Define the list of sheet names
+    columnIndices = Array(1, 2, 3) ' Edit this line with your desired column indices
+    
+    ' Create a list of Excel sheet names; the user should be able to write in the name of sheet names
     Dim sheetNames As Variant
-    sheetNames = Array("Sheet1", "Sheet2", "Sheet3")
-
-    ' Create a loop that goes through the list of indices and sheet names at the same time:
-    Dim i As Long
+    sheetNames = Array("Sheet1", "Sheet2") ' Edit this line with your desired sheet names
+    
+    ' Open the target workbook
+    Dim targetWorkbook As Workbook
+    Set targetWorkbook = Workbooks.Open(targetFile)
+    
+    ' Create a loop that goes through the list of indices and sheet names; the lists should be iterated at the same time not separately:
+    Dim i As Long, j As Long
     For i = LBound(sheetNames) To UBound(sheetNames)
-        ' Ignore the first row of the currently opened Excel file; the first row contains headers
-        Dim currentSheet As Worksheet
-        Set currentSheet = ThisWorkbook.Sheets(sheetNames(i))
-
-        ' Extract a column
-        Dim lastRow As Long
-        lastRow = currentSheet.Cells(currentSheet.Rows.Count, columnIndices(i)).End(xlUp).Row
-
-        Dim extractedColumn As Range
-        Set extractedColumn = currentSheet.Range(currentSheet.Cells(2, columnIndices(i)), currentSheet.Cells(lastRow, columnIndices(i)))
-
-        ' The extracted column should be concatenated after the last column of each sheet; the user should be able to specify the directory of the Excel file that contains the sheet name from the list of sheet names
-        Dim targetWorkbook As Workbook
-        Set targetWorkbook = Workbooks.Open(targetWorkbookPath)
-
-        Dim targetSheet As Worksheet
-        Set targetSheet = targetWorkbook.Sheets(sheetNames(i))
-
-        Dim targetLastColumn As Long
-        targetLastColumn = targetSheet.Cells(1, targetSheet.Columns.Count).End(xlToLeft).Column
-
-        extractedColumn.Copy Destination:=targetSheet.Cells(1, targetLastColumn + 1)
+        For j = LBound(columnIndices) To UBound(columnIndices)
+            ' Ignore the first row of the currently opened excel file; the first row contains headers
+            Dim sourceColumn As Range
+            Set sourceColumn = ActiveSheet.Columns(columnIndices(j)).Offset(1, 0)
+            
+            ' Extract a column
+            Dim lastRow As Long
+            lastRow = sourceColumn.Cells(sourceColumn.Rows.Count).End(xlUp).Row
+            
+            ' Find the last column of the sheet in the target excel file
+            Dim targetSheet As Worksheet
+            Set targetSheet = targetWorkbook.Sheets(sheetNames(i))
+            
+            Dim lastColumn As Long
+            lastColumn = targetSheet.Cells(1, targetSheet.Columns.Count).End(xlToLeft).Column + 1
+            
+            ' The extracted column should be concatenated to the end of each sheet; ignore the first row; place the extracted column starting at the 2nd row; the 1st row has headers
+            sourceColumn.Resize(lastRow - 1).Copy Destination:=targetSheet.Cells(2, lastColumn)
+            
+            ' Add header name to first row of new column
+            targetSheet.Cells(1, lastColumn).Value = headerName
+        Next j
     Next i
+    
+    ' Save and close target workbook
+    targetWorkbook.Close SaveChanges:=True
+    
 End Sub
