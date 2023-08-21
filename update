@@ -40,8 +40,10 @@ Sub ExtractColumns()
         ' The extracted column should be concatenated to the end of each sheet; ignore the first row; place the extracted column starting at the 2nd row; the 1st row has headers
         sourceColumn.Resize(lastRow - 1).Copy Destination:=targetSheet.Cells(2, lastColumn)
         
-        ' Add header name to first row of new column
-        targetSheet.Cells(1, lastColumn).Value = headerName
+        ' Add header name to first row of new column in first sheet only
+        If i = LBound(sheetNames) Then
+            targetSheet.Cells(1, lastColumn).Value = headerName
+        End If
     Next i
     
     ' Save and close target workbook
