@@ -1,4 +1,8 @@
 Sub ExtractColumns()
+    ' Move the targetWorkbookPath variable above the headerName variable
+    Dim targetWorkbookPath As String
+    targetWorkbookPath = InputBox("Enter the path of the target workbook:")
+
     ' Create a variable for the user to fill out for the name of a header
     Dim headerName As String
     headerName = InputBox("Enter the name of the header:")
@@ -27,9 +31,6 @@ Sub ExtractColumns()
             Set extractedColumn = currentSheet.Range(currentSheet.Cells(2, columnIndices(j)), currentSheet.Cells(lastRow, columnIndices(j)))
 
             ' The extracted column should be concatenated to the end of each sheet; the user should be able to specify the directory of the Excel file that contains the sheet name from the list of sheet names
-            Dim targetWorkbookPath As String
-            targetWorkbookPath = InputBox("Enter the path of the target workbook:")
-
             Dim targetWorkbook As Workbook
             Set targetWorkbook = Workbooks.Open(targetWorkbookPath)
 
