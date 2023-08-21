@@ -12,7 +12,7 @@ header_names = ["Header Name 1", "Header Name 2", "Header Name 3"]
 # list of column indices to extract
 column_indices = [1, 2, 3]
 
-# list of excel sheet names
+# list of excel sheet names in the target workbook
 sheet_names = ["Sheet1", "Sheet2", "Sheet3"]
 
 # load target workbook
@@ -23,11 +23,13 @@ for source_file, header_name in zip(source_files, header_names):
     # load source workbook
     source_wb = openpyxl.load_workbook(source_file)
 
+    # get the only sheet in the source workbook
+    source_sheet = source_wb.active
+
     # create a loop that goes through the list of indices and sheet names; the lists should be iterated at the same time not separately:
     for sheet_name, column_index in zip(sheet_names, column_indices):
-        # get sheets
+        # get target sheet
         target_sheet = target_wb[sheet_name]
-        source_sheet = source_wb[sheet_name]
 
         # ignore the first row of the currently opened excel file; the first row contains headers
         # extract a column
