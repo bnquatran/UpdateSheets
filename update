@@ -15,32 +15,30 @@ Sub ExtractColumns()
     Dim sheetNames As Variant
     sheetNames = Array("Sheet1", "Sheet2", "Sheet3")
 
-    ' Create a loop that goes through the list of indices and sheet names:
-    Dim i As Long, j As Long
+    ' Create a loop that goes through the list of indices and sheet names at the same time:
+    Dim i As Long
     For i = LBound(sheetNames) To UBound(sheetNames)
-        For j = LBound(columnIndices) To UBound(columnIndices)
-            ' Ignore the first row of the currently opened Excel file; the first row contains headers
-            Dim currentSheet As Worksheet
-            Set currentSheet = ThisWorkbook.Sheets(sheetNames(i))
+        ' Ignore the first row of the currently opened Excel file; the first row contains headers
+        Dim currentSheet As Worksheet
+        Set currentSheet = ThisWorkbook.Sheets(sheetNames(i))
 
-            ' Extract a column
-            Dim lastRow As Long
-            lastRow = currentSheet.Cells(currentSheet.Rows.Count, columnIndices(j)).End(xlUp).Row
+        ' Extract a column
+        Dim lastRow As Long
+        lastRow = currentSheet.Cells(currentSheet.Rows.Count, columnIndices(i)).End(xlUp).Row
 
-            Dim extractedColumn As Range
-            Set extractedColumn = currentSheet.Range(currentSheet.Cells(2, columnIndices(j)), currentSheet.Cells(lastRow, columnIndices(j)))
+        Dim extractedColumn As Range
+        Set extractedColumn = currentSheet.Range(currentSheet.Cells(2, columnIndices(i)), currentSheet.Cells(lastRow, columnIndices(i)))
 
-            ' The extracted column should be concatenated to the end of each sheet; the user should be able to specify the directory of the Excel file that contains the sheet name from the list of sheet names
-            Dim targetWorkbook As Workbook
-            Set targetWorkbook = Workbooks.Open(targetWorkbookPath)
+        ' The extracted column should be concatenated to the end of each sheet; the user should be able to specify the directory of the Excel file that contains the sheet name from the list of sheet names
+        Dim targetWorkbook As Workbook
+        Set targetWorkbook = Workbooks.Open(targetWorkbookPath)
 
-            Dim targetSheet As Worksheet
-            Set targetSheet = targetWorkbook.Sheets(sheetNames(i))
+        Dim targetSheet As Worksheet
+        Set targetSheet = targetWorkbook.Sheets(sheetNames(i))
 
-            Dim targetLastRow As Long
-            targetLastRow = targetSheet.Cells(targetSheet.Rows.Count, 1).End(xlUp).Row
+        Dim targetLastRow As Long
+        targetLastRow = targetSheet.Cells(targetSheet.Rows.Count, 1).End(xlUp).Row
 
-            extractedColumn.Copy Destination:=targetSheet.Range("A" & targetLastRow + 1)
-        Next j
+        extractedColumn.Copy Destination:=targetSheet.Range("A" & targetLastRow + 1)
     Next i
 End Sub
