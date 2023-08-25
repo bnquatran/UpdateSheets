@@ -1,0 +1,74 @@
+Here is a VBA code that does what you described:
+
+```vba
+Sub ImportCSVs()
+    ' Define variables
+    Dim targetPath As String
+    Dim sourceFiles As Variant
+    Dim headers As Variant
+    Dim columns As Variant
+    Dim sheets As Variant
+    Dim tempFile As String
+    Dim i As Integer
+    
+    ' Set values for variables
+    targetPath = "C:\Path\To\Target\Workbook.xlsx"
+    sourceFiles = Array("C:\Path\To\Source\File1.csv", "C:\Path\To\Source\File2.csv")
+    headers = Array("Header1", "Header2")
+    columns = Array(1, 2)
+    sheets = Array("Sheet1", "Sheet2")
+    
+    ' Load target workbook
+    Dim targetBook As Workbook
+    Set targetBook = Workbooks.Open(targetPath)
+    
+    ' Iterate over source files and headers
+    For i = LBound(sourceFiles) To UBound(sourceFiles)
+        ' Create temporary Excel file from CSV data
+        tempFile = "C:\TempFile" & i & ".xlsx"
+        With New Workbook
+            .Sheets(1).Cells(1, 1).CopyFromRecordset CreateObject("ADODB.Recordset").Open("SELECT * FROM [" & sourceFiles(i) & "]", _
+                CreateObject("ADODB.Connection").Open("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Left(sourceFiles(i), InStrRev(sourceFiles(i), "\")) & ";Extended Properties=""text;HDR=No;FMT=Delimited"""))
+            .SaveAs tempFile, xlOpenXMLWorkbook
+            .Close False
+        End With
+        
+        ' Load temporary workbook and extract columns
+        Dim tempBook As Workbook
+        Set tempBook = Workbooks.Open(tempFile)
+        Dim tempSheet As Worksheet
+        Set tempSheet = tempBook.Sheets(1)
+        Dim targetSheet As Worksheet
+        Set targetSheet = targetBook.Sheets(sheets(i))
+        tempSheet.Columns(columns(i)).Copy targetSheet.Columns(1)
+        
+        ' Add header to first row of first sheet only
+        If i = LBound(sourceFiles) Then
+            targetSheet.Cells(1, 1) = headers(i)
+            With targetSheet.Cells(1, 1)
+                .HorizontalAlignment = xlCenter
+                .VerticalAlignment = xlCenter
+            End With
+        End If
+        
+        ' Assign formula to first row of last column of all sheets except first one
+        If i > LBound(sourceFiles) Then
+            targetSheet.Cells(1, targetSheet.Columns.Count).End(xlToLeft).Offset(0, 1).FormulaR1C1 = "='" & sheets(LBound(sourceFiles)) & "'!R[0]C[" & (targetBook.Sheets(sheets(LBound(sourceFiles))).Cells(1, targetBook.Sheets(sheets(LBound(sourceFiles))).Columns.Count).End(xlToLeft).Column - targetSheet.Cells(1, targetSheet.Columns.Count).End(xlToLeft).Offset(0, 1).Column) & "]"
+        End If
+        
+        ' Close and delete temporary file
+        tempBook.Close False
+        Kill tempFile
+    Next i
+    
+    ' Save changes to target workbook and close it
+    targetBook.Save
+    targetBook.Close False
+    
+End Sub
+
+```
+
+This code assumes that the variables `targetPath`, `sourceFiles`, `headers`, `columns`, and `sheets` are defined with the appropriate values. You can modify these values to fit your specific needs.
+
+I hope this helps! Let me know if you have any questions or need further assistance.
