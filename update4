@@ -1,0 +1,63 @@
+Sub MergeCSVFiles()
+    ' Define variables
+    Dim targetWorkbookPath As String
+    Dim sourceFiles As Variant
+    Dim headers As Variant
+    Dim columnIndices As Variant
+    Dim sheetNames As Variant
+    Dim targetWorkbook As Workbook
+    Dim tempWorkbook As Workbook
+    Dim i As Integer, j As Integer, k As Integer
+    
+    ' Set variable values
+    targetWorkbookPath = "C:\Path\To\Target\Workbook.xlsx"
+    sourceFiles = Array("C:\Path\To\Source\File1.csv", "C:\Path\To\Source\File2.csv")
+    headers = Array("Header1", "Header2", "Header3")
+    columnIndices = Array(1, 2, 3)
+    sheetNames = Array("Sheet1", "Sheet2", "Sheet3")
+    
+    ' Load target workbook
+    Set targetWorkbook = Workbooks.Open(targetWorkbookPath)
+    
+    ' Loop through source files and headers
+    For i = LBound(sourceFiles) To UBound(sourceFiles)
+        ' Create temporary Excel file and append data from CSV file
+        Set tempWorkbook = Workbooks.Add
+        With tempWorkbook.Sheets(1).QueryTables.Add(Connection:="TEXT;" & sourceFiles(i), Destination:=Range("$A$1"))
+            .TextFileParseType = xlDelimited
+            .TextFileCommaDelimiter = True
+            .Refresh BackgroundQuery:=False
+        End With
+        
+        ' Extract specified columns from temporary Excel file and add to target workbook sheets
+        For j = LBound(columnIndices) To UBound(columnIndices)
+            tempWorkbook.Sheets(1).Columns(columnIndices(j)).Copy Destination:=targetWorkbook.Sheets(sheetNames(j)).Columns(targetWorkbook.Sheets(sheetNames(j)).UsedRange.Columns.Count + 1)
+        Next j
+        
+        ' Add header name to first row of first sheet only and align text in first cell of each sheet
+        If i = LBound(sourceFiles) Then
+            For k = LBound(sheetNames) To UBound(sheetNames)
+                With targetWorkbook.Sheets(sheetNames(k))
+                    .Cells(1, .UsedRange.Columns.Count).Value = headers(k)
+                    .Cells(1, 1).HorizontalAlignment = xlCenter
+                    .Cells(1, 1).VerticalAlignment = xlCenter
+                End With
+            Next k
+        End If
+        
+        ' Assign formula to first row of last column of all sheets except for the first one
+        For k = LBound(sheetNames) + 1 To UBound(sheetNames)
+            With targetWorkbook.Sheets(sheetNames(k))
+                .Cells(1, .UsedRange.Columns.Count).FormulaR1C1 = "=" & sheetNames(LBound(sheetNames)) & "!R[0]C[0]"
+            End With
+        Next k
+        
+        ' Delete temporary Excel file
+        tempWorkbook.Close SaveChanges:=False
+    Next i
+    
+    ' Save changes to target workbook and close it
+    targetWorkbook.Close SaveChanges:=True
+    
+End Sub
+
